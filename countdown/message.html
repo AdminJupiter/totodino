@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger Style Messages</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px;
+            z-index: 100;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.2em;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #ffd1dc;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background-color: #ff7f9c;
+            border-radius: 50%;
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 200;
+            cursor: pointer;
+        }
+        .menu-toggle span {
+            width: 20px;
+            height: 2px;
+            background-color: white;
+            margin: 3px 0;
+        }
+
+        .message-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            margin-top: 100px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        #messageList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+        }
+
+        #messageList li {
+            background: #e5e5e5;
+            padding: 10px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 1em;
+            animation: fadeIn 0.5s ease;
+        }
+
+        #messageList li strong {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        #messageList li.from-SOPHIA {
+            background: #ff7f9c;
+            align-self: flex-start;
+        }
+
+        #messageList li.from-JAO {
+            background: #3498db;
+            color: white;
+            align-self: flex-end;
+        }
+
+        #messageForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        #messageInput {
+            padding: 12px;
+            font-size: 1em;
+            border-radius: 15px;
+            border: 1px solid #ccc;
+            height: 60px;
+            resize: none;
+            background-color: #f9f9f9;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        #messageInput:focus {
+            background-color: #fff;
+            border-color: #3498db;
+        }
+
+        #sender {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        #messageForm button {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            background-color: #ff7f9c;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-end;
+        }
+
+        #messageForm button:hover {
+            background-color: #ff4e73;
+        }
+
+        #clearMessages {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-start;
+            margin-top: 20px;
+        }
+
+        #clearMessages:hover {
+            background-color: #c0392b;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                background-color: #333;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 100%;
+                align-items: center;
+                justify-content: center;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            nav.active {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-toggle" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <nav id="navMenu">
+        <a href="index.html">Countdown</a>
+        <a href="message.html">Message</a>
+        <a href="picture.html">Open When</a>
+        <a href="songs.html">Playlist</a>
+        <a href="loc.html">Journey</a>
+        <a href="garden.html">Love Garden</a>
+    </nav>
+
+    <section id="message" class="message-section">
+        <h2>Daily Messages 💌</h2>
+        <ul id="messageList"></ul>
+        <form id="messageForm">
+            <textarea id="messageInput" placeholder="Write your message..." required></textarea>
+            <select id="sender">
+                <option value="JAO">From JAO</option>
+                <option value="SOPHIA">From SOPHIA</option>
+            </select>
+            <button type="submit">Send ❤️</button>
+        </form>
+        <button id="clearMessages">Clear All Messages</button>
+    </section>
+
+    <script>
+        const form = document.getElementById('messageForm');
+        const input = document.getElementById('messageInput');
+        const sender = document.getElementById('sender');
+        const list = document.getElementById('messageList');
+        const clearButton = document.getElementById('clearMessages');
+
+        const maxMessages = 10;
+
+        const saveMessages = () => {
+            const messages = Array.from(list.children).map(li => li.outerHTML);
+            localStorage.setItem('loveMessages', JSON.stringify(messages));
+        };
+
+        const loadMessages = () => {
+            const saved = JSON.parse(localStorage.getItem('loveMessages'));
+            if (saved) {
+                saved.reverse().forEach(html => {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    list.prepend(temp.firstChild);
+                });
+            }
+        };
+
+        const removeOlderMessages = () => {
+            const messages = list.querySelectorAll('li');
+            if (messages.length > maxMessages) {
+                messages[messages.length - 1].remove();
+            }
+        };
+
+        const clearAllMessages = () => {
+            list.innerHTML = '';
+            localStorage.removeItem('loveMessages');
+        };
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const msg = input.value.trim();
+            const who = sender.value;
+            if (!msg) return;
+
+            const li = document.createElement('li');
+            const date = new Date().toLocaleDateString();
+            li.innerHTML = `<strong>${who}</strong> (${date}): ${msg}`;
+            li.classList.add(`from-${who}`);
+            list.prepend(li);
+            input.value = '';
+            input.focus();
+            removeOlderMessages();
+            saveMessages();
+
+            const heart = document.createElement('div');
+            heart.className = 'heart-fly';
+            heart.innerHTML = '💖';
+            heart.style.position = 'fixed';
+            heart.style.left = `${Math.random() * 100}%`;
+            heart.style.bottom = '10px';
+            heart.style.fontSize = '2em';
+            heart.style.animation = 'fly 2s ease forwards';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 2000);
+        });
+
+        clearButton.addEventListener('click', clearAllMessages);
+
+        loadMessages();
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fly {
+                to { transform: translateY(-200px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function toggleMenu() {
+            const nav = document.getElementById('navMenu');
+            nav.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

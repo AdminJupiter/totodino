@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Garden</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #fce4ec, #f8bbd0);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 15px 20px;
+      z-index: 100;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .links {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #ffd1dc;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: #fff;
+      transition: all 0.3s;
+    }
+
+    .hamburger.active div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active div:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active div:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    @media (max-width: 768px) {
+      .links {
+        display: none;
+        flex-direction: column;
+        background-color: rgba(0, 0, 0, 0.7);
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        width: 180px;
+      }
+
+      nav.active .links {
+        display: flex;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      nav a {
+        font-size: 1.3em; /* Larger text for readability */
+        padding: 10px 0;
+        text-align: center; /* Center text for mobile */
+      }
+
+      nav a:hover {
+        color: #ffd1dc;
+      }
+    }
+
+    .garden {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 1000px;
+      margin-top: 120px;
+    }
+
+    .flower {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #fff;
+      border: 4px solid #ec407a;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .flower:hover {
+      transform: scale(1.1);
+    }
+
+    .remove-btn {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 10px;
+      background: #ff4081;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.8em;
+      cursor: pointer;
+    }
+
+    .memory {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+      color: #333;
+      font-size: 1.1em;
+    }
+
+    .memory img {
+      width: 100%;
+      max-width: 250px;
+      border-radius: 10px;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .close-btn {
+      margin-top: 15px;
+      padding: 5px 15px;
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .upload-form {
+      margin: 20px;
+      background: #fff0f5;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .upload-form input, .upload-form textarea, .upload-form button {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .upload-form input, .upload-form textarea {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .upload-form button {
+      padding: 10px;
+      background-color: #ec407a;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .butterflies {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .butterfly {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-image: url('images/s1.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: fly 20s linear infinite;
+      border-radius: 50px;
+    }
+
+    @keyframes fly {
+      0% {
+        transform: translateY(100vh) translateX(-50px) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-100vh) translateX(50vw) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <div class="links">
+        <a href="index.html">Countdown</a>
+        <a href="message.html">Message</a>
+        <a href="picture.html">Open When</a>
+        <a href="songs.html">Playlist</a>
+        <a href="loc.html">Journey</a>
+        <a href="garden.html">Love Garden</a>
+      </div>
+      <div class="hamburger" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </nav>
+
+  <h1 style="margin-top: 120px;">🌸 Our Love Garden 🌸</h1>
+
+  <div class="upload-form">
+    <input type="text" id="memoryTitleInput" placeholder="Memory Title" />
+    <textarea id="memoryTextInput" rows="4" placeholder="Describe the memory..."></textarea>
+    <input type="file" id="memoryImageInput" accept="image/*" />
+    <button onclick="addMemory()">Add Memory to Garden</button>
+  </div>
+
+  <div class="garden" id="garden"></div>
+
+  <div class="memory" id="memory">
+    <div id="memoryTitle" style="font-weight: bold; font-size: 1.3em; margin-bottom: 10px;"></div>
+    <img id="memoryImage" src="" alt="Memory image" style="display: none;" />
+    <div id="memoryText"></div>
+    <button class="close-btn" onclick="closeMemory()">Close</button>
+  </div>
+
+  <div class="butterflies">
+    <div class="butterfly" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="butterfly" style="left: 30%; animation-delay: 2s;"></div>
+    <div class="butterfly" style="left: 50%; animation-delay: 4s;"></div>
+    <div class="butterfly" style="left: 70%; animation-delay: 6s;"></div>
+    <div class="butterfly" style="left: 90%; animation-delay: 8s;"></div>
+  </div>
+
+  <script>
+    let memories = JSON.parse(localStorage.getItem('memories')) || [];
+
+    const garden = document.getElementById('garden');
+
+    function renderGarden() {
+      garden.innerHTML = '';
+      memories.forEach((memory, index) => {
+        const flower = document.createElement('div');
+        flower.className = 'flower';
+        flower.title = memory.title;
+        flower.style.backgroundImage = `url(${memory.image})`;
+
+        const removeButton = document.createElement('button');
+        removeButton.className = 'remove-btn';
+        removeButton.innerText = 'Remove Memory';
+        removeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeMemory(index);
+        });
+        flower.appendChild(removeButton);
+
+        flower.addEventListener('click', () => showMemory(memory));
+        garden.appendChild(flower);
+      });
+    }
+
+    function showMemory(memory) {
+      document.getElementById('memoryTitle').innerText = memory.title;
+      document.getElementById('memoryText').innerText = memory.text;
+      const img = document.getElementById('memoryImage');
+      img.src = memory.image;
+      img.style.display = 'block';
+      document.getElementById('memory').style.display = 'block';
+    }
+
+    function closeMemory() {
+      document.getElementById('memory').style.display = 'none';
+    }
+
+    function addMemory() {
+      const title = document.getElementById('memoryTitleInput').value;
+      const text = document.getElementById('memoryTextInput').value;
+      const imageInput = document.getElementById('memoryImageInput');
+      const image = imageInput.files[0] ? URL.createObjectURL(imageInput.files[0]) : '';
+      if (title && text) {
+        memories.push({ title, text, image });
+        localStorage.setItem('memories', JSON.stringify(memories));
+        renderGarden();
+        document.getElementById('memoryTitleInput').value = '';
+        document.getElementById('memoryTextInput').value = '';
+        imageInput.value = '';
+      }
+    }
+
+    function removeMemory(index) {
+      memories.splice(index, 1);
+      localStorage.setItem('memories', JSON.stringify(memories));
+      renderGarden();
+    }
+
+    function toggleMenu() {
+      document.querySelector('nav').classList.toggle('active');
+    }
+
+    renderGarden();
+  </script>
+</body>
+</html>

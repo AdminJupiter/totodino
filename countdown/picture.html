@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Couples’ Gallery</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding-top: 80px;
+      color: #333;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 15px;
+      z-index: 100;
+      transition: max-height 0.3s ease;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #ffd1dc;
+    }
+
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 2em;
+      color: #fff;
+      z-index: 110;
+      cursor: pointer;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #ff7f9c;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .upload-container {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    #imageInput {
+      padding: 12px;
+      border-radius: 25px;
+      border: 2px solid #ff7f9c;
+      background-color: #fff;
+      cursor: pointer;
+      font-size: 1.2em;
+      color: #ff7f9c;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    #imageInput:hover {
+      background-color: #ff7f9c;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 12px 25px;
+      font-size: 1.1em;
+      background-color: #ff7f9c;
+      color: white;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    button:hover {
+      background-color: #ff4e73;
+      transform: scale(1.05);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      width: 90%;
+      justify-content: center;
+    }
+
+    .image-item {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      background-color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+
+    .caption {
+      padding: 10px;
+      font-size: 1.2em;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .like-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff7f9c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .like-count {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+        max-height: 0;
+        overflow: hidden;
+      }
+
+      nav.open {
+        max-height: 500px;
+      }
+
+      .menu-toggle {
+        display: block;
+        top:-30px;
+right: -120px;
+
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+  <nav id="navMenu">
+    <a href="index.html">Countdown</a>
+    <a href="message.html">Message</a>
+    <a href="picture.html">Open When</a>
+    <a href="songs.html">Playlist</a>
+    <a href="loc.html">Journey</a>
+    <a href="garden.html">Love Garden</a>
+  </nav>
+
+  <h1>Jao and Sophia Gallery</h1>
+
+  <div class="upload-container">
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="uploadImage()">Upload Image</button>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+
+  <script>
+    const gallery = document.getElementById('gallery');
+    const storageKey = 'couplesGalleryImages';
+
+    function loadImagesFromStorage() {
+      const savedData = JSON.parse(localStorage.getItem(storageKey)) || [];
+      savedData.forEach(({ src, likes }) => {
+        createImageItem(src, likes);
+      });
+    }
+
+    function saveImagesToStorage() {
+      const images = [];
+      document.querySelectorAll('.image-item').forEach(item => {
+        const imgSrc = item.querySelector('img').src;
+        const likeText = item.querySelector('.like-count').textContent;
+        const likeCount = parseInt(likeText);
+        images.push({ src: imgSrc, likes: likeCount });
+      });
+      localStorage.setItem(storageKey, JSON.stringify(images));
+    }
+
+    function createImageItem(src, initialLikes = 0) {
+      const imageItem = document.createElement('div');
+      imageItem.classList.add('image-item');
+
+      const img = document.createElement('img');
+      img.src = src;
+      imageItem.appendChild(img);
+
+      const caption = document.createElement('div');
+      caption.classList.add('caption');
+      caption.textContent = 'A Beautiful Memory';
+      imageItem.appendChild(caption);
+
+      const likeBtn = document.createElement('button');
+      likeBtn.classList.add('like-btn');
+      likeBtn.textContent = 'Like ❤️';
+      imageItem.appendChild(likeBtn);
+
+      const likeCount = document.createElement('span');
+      likeCount.classList.add('like-count');
+      likeCount.textContent = `${initialLikes} Like${initialLikes !== 1 ? 's' : ''}`;
+      imageItem.appendChild(likeCount);
+
+      let likes = initialLikes;
+
+      likeBtn.addEventListener('click', () => {
+        likes++;
+        likeCount.textContent = `${likes} Like${likes !== 1 ? 's' : ''}`;
+        saveImagesToStorage();
+      });
+
+      gallery.appendChild(imageItem);
+    }
+
+    function uploadImage() {
+      const input = document.getElementById('imageInput');
+      const file = input.files[0];
+
+      if (!file) {
+        alert('Please select an image to upload');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imgUrl = e.target.result;
+        createImageItem(imgUrl);
+        saveImagesToStorage();
+      };
+
+      reader.readAsDataURL(file);
+      input.value = '';
+    }
+
+    function toggleMenu() {
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+
+    // Load on page load
+    loadImagesFromStorage();
+  </script>
+
+</body>
+</html>
